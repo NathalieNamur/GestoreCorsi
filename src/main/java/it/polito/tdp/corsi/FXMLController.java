@@ -5,8 +5,13 @@
 package it.polito.tdp.corsi;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+
+import it.polito.tdp.corsi.model.Corso;
 import it.polito.tdp.corsi.model.Model;
+import it.polito.tdp.corsi.model.Studente;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -17,54 +22,148 @@ public class FXMLController {
 
 	private Model model;
 	
-    @FXML // ResourceBundle that was given to the FXMLLoader
+    @FXML
     private ResourceBundle resources;
 
-    @FXML // URL location of the FXML file that was given to the FXMLLoader
+    @FXML 
     private URL location;
 
-    @FXML // fx:id="txtPeriodo"
-    private TextField txtPeriodo; // Value injected by FXMLLoader
+    @FXML 
+    private TextField txtPeriodo; 
 
-    @FXML // fx:id="txtCorso"
-    private TextField txtCorso; // Value injected by FXMLLoader
+    @FXML
+    private TextField txtCorso;
 
-    @FXML // fx:id="btnCorsiPerPeriodo"
-    private Button btnCorsiPerPeriodo; // Value injected by FXMLLoader
+    @FXML 
+    private Button btnCorsiPerPeriodo; 
 
-    @FXML // fx:id="btnNumeroStudenti"
-    private Button btnNumeroStudenti; // Value injected by FXMLLoader
+    @FXML 
+    private Button btnNumeroStudenti; 
 
-    @FXML // fx:id="btnStudenti"
-    private Button btnStudenti; // Value injected by FXMLLoader
+    @FXML
+    private Button btnStudenti;
 
-    @FXML // fx:id="btnDivisioneStudenti"
-    private Button btnDivisioneStudenti; // Value injected by FXMLLoader
+    @FXML 
+    private Button btnDivisioneStudenti;
 
-    @FXML // fx:id="txtRisultato"
-    private TextArea txtRisultato; // Value injected by FXMLLoader
+    @FXML 
+    private TextArea txtRisultato;
 
+    
+    
+    //I:
     @FXML
     void corsiPerPeriodo(ActionEvent event) {
     	
-    }
-
-    @FXML
-    void numeroStudenti(ActionEvent event) {
+    	txtRisultato.clear();
+    	
+    	
+    	String periodo = txtPeriodo.getText();
+    	int periodoNumerico;
+    	
+    	try {
+    		periodoNumerico = Integer.parseInt(periodo);
+    		
+    	} catch (NumberFormatException e) {
+    		txtRisultato.setText("ERRORE: Inserisci un periodo numerico.");
+    		return;
+    	}
+    	
+    	if(periodoNumerico<1 || periodoNumerico>2) {
+    		txtRisultato.setText("ERRORE: Inserisci come periodo 1 o 2.");
+    		return;
+    	}
+    	
+    	
+    	List<Corso> corsi = model.getCorsiByPeriodo(periodoNumerico);
+    	
+    	for(Corso c : corsi)
+    		txtRisultato.appendText(c + "\n"); 	
     	
     }
 
+    
+    //II:
+    @FXML
+    void numeroStudenti(ActionEvent event) {
+    	
+    	txtRisultato.clear();
+    	
+    	
+    	String periodo = txtPeriodo.getText();
+    	int periodoNumerico;
+    	
+    	try {
+    		periodoNumerico = Integer.parseInt(periodo);
+    		
+    	} catch (NumberFormatException e) {
+    		txtRisultato.setText("ERRORE: Inserisci un periodo numerico.");
+    		return;
+    	}
+    	
+    	if(periodoNumerico<1 || periodoNumerico>2) {
+    		txtRisultato.setText("ERRORE: Inserisci come periodo 1 o 2.");
+    		return;
+    	}
+    	
+    	
+    	Map<Corso,Integer> iscritti = model.getIscritti(periodoNumerico);
+    	
+    	for(Corso c : iscritti.keySet())
+    		txtRisultato.appendText(c + " " + iscritti.get(c) + "\n");
+  	
+    }
+
+    
+    //IV:
     @FXML
     void stampaDivisione(ActionEvent event) {
-
+    	
+    	txtRisultato.clear();
+    	
+    	
+    	String codins = txtCorso.getText();
+    	
+    	if(codins == null || codins.equals("")) {
+    		txtRisultato.appendText("ERRORE: Inserisci un codice corso.");
+    		return; 
+    	}	
+    	
+    	/**Controllare inoltre che il corso esista*/
+    	
+    	
+    	Map<String,Integer> divisione = model.getDivisione(codins);
+    	
+    	for(String str : divisione.keySet())
+    		txtRisultato.appendText(str + " " + divisione.get(str) + "\n");
+  
     }
 
+    
+    //III:
     @FXML
     void stampaStudenti(ActionEvent event) {
-
+    	
+    	txtRisultato.clear();
+    	
+    	
+    	String codins = txtCorso.getText();
+    	
+    	if(codins == null || codins.equals("")) {
+    		txtRisultato.appendText("ERRORE: Inserisci un codice corso.");
+    		return; 
+    	}	
+    	
+    	/**Controllare inoltre che il corso esista*/
+    	
+    	
+    	for (Studente s : model.getStudentiByCorso(codins)) 
+    		txtRisultato.appendText(s + "\n");
     }
 
-    @FXML // This method is called by the FXMLLoader when initialization is complete
+    
+    
+    @FXML
     void initialize() {
         assert txtPeriodo != null : "fx:id=\"txtPeriodo\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtCorso != null : "fx:id=\"txtCorso\" was not injected: check your FXML file 'Scene.fxml'.";
@@ -76,9 +175,12 @@ public class FXMLController {
 
     }
     
+    
+    
     public void setModel(Model model) {
     	this.model = model;
     }
+    
     
     
 }
